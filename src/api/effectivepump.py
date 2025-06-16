@@ -3,75 +3,77 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Extra
 from typing import List, Optional
 from jinja2 import Template
+# from src.models.selectionBaseModel import PumpDataBase
+
 
 router = APIRouter()
 
-class PumpData(BaseModel):
-    id: int
-    pumpModel: str
-    pumpTypeUuid: str
-    pumpModelUuid: str
-    primeMoverUuid: str
-    perfCurvNo: str
-    pumpModelId: int
-    perfCurvNoId: int
-    series: str
-    pumpTypeId: int
-    stgType: str
-    stg: int
+class PumpData(BaseModel):  # PumpDataBase
 
-    trimDia: float
-    maxDia: float
-    minDia: float
-    diaList: str
-    diaList2: str
-    suction: str
-    discharge: str
-    pumpShaftDia: str
-    shaftGroup: str
-    impellerDia2: str
-    recommendedPipeSuc: int
-    recommendedPipeDis: int
+    id: Optional[int]
+    pumpModel: Optional[str]
+    pumpTypeUuid: Optional[str]
+    pumpModelUuid: Optional[str]
+    primeMoverUuid: Optional[str]
+    perfCurvNo: Optional[str]
+    pumpModelId: Optional[int]
+    perfCurvNoId: Optional[int]
+    series: Optional[str]
+    pumpTypeId: Optional[int]
+    dpFlow: str
+    dpHead: str
+    stgType: Optional[str]
+    stg: Optional[int]
 
-    speed: int
-    pole: int
-    trimRatio: float
-    bepPerPumpWater: str
-    bepPerPump: str
-    bepWater: str
-    bepPump: str
+    trimDia: Optional[float]
+    maxDia: Optional[float]
+    minDia: Optional[float]
+    diaList: Optional[str]
+    diaList2: Optional[str]
+    suction: Optional[str]
+    discharge: Optional[str]
+    pumpShaftDia: Optional[str]
+    shaftGroup: Optional[str]
+    impellerDia2: Optional[str]
+    recommendedPipeSuc: Optional[int]
+    recommendedPipeDis: Optional[int]
+
+    speed: Optional[int]
+    pole: Optional[int]
+    trimRatio: Optional[float]
+    bepPerPumpWater: Optional[str]
+    bepPerPump: Optional[str]
+    bepWater: Optional[str]
+    bepPump: Optional[str]
     bepEff: float
-    bepFlowPercentage: float
-    minContinuousFlow: float
-    operatingRange: str
+    bepFlowPercentage: Optional[float]
+    minContinuousFlow: Optional[float]
+    operatingRange: Optional[str]
 
-    efficiencyDp: str
-    npshrDp: str
-    powerDp: str
-    powerDpMax: str
-    soh: str
+    efficiencyDp: Optional[str]
+    npshrDp: Optional[str]
+    powerDp: Optional[str]
+    powerDpMax: Optional[str]
+    soh: Optional[str]
 
-    primeMoverID: int
-    primeMoverPower: str
-    primeMoverFrame: str
-    primeMoverPowerHP: str
-    primemoverSpeed: str
+    primeMoverID: Optional[int]
+    primeMoverPower: Optional[str]
+    primeMoverFrame: Optional[str]
+    primeMoverPowerHP: Optional[str]
+    primemoverSpeed: Optional[str]
 
-    system: str
-    noOfPumps: int
-    staticHead: int
-    verticalLogic: bool
+    system: Optional[str]
+    noOfPumps: Optional[int]
+    staticHead: Optional[int]
+    verticalLogic: Optional[bool]
     genericBom: Optional[bool] = None
     patternAvl: Optional[bool] = None
     discontinued: Optional[bool] = None
 
-    specificSpeed: float
-    suctionSpecificSpeed: float
-    tipSpeedCal: float
-    sysPreCal: str
-
-    class Config:
-        extra = Extra.allow  # Allow unexpected fields
+    specificSpeed: Optional[float]
+    suctionSpecificSpeed: Optional[float]
+    tipSpeedCal: Optional[float]
+    sysPreCal: Optional[str]
 
 # Template for the message
 template = Template(
@@ -83,13 +85,22 @@ def effectivepump(data: List[PumpData]):
     if not data:
         return {"text": "No data provided."}
 
+    # Filter out items that don't have a pumpModel or bepEff
+    valid_data = [item for item in data if item.pumpModel and item.bepEff is not None]
+    if not valid_data:
+        return {"text": "No valid pump model with efficiency found."}
+
     # Find the item with the maximum bepEff
-    max_eff_item = max(data, key=lambda x: x.bepEff)
+    max_eff_item = max(valid_data, key=lambda x: x.bepEff)
+
+     # Calculate and format efficiency with 2 decimal places
+    efficiency_value = max_eff_item.bepEff * 100
+    efficiency_str = f"{efficiency_value:.2f}"
 
     # Generate the summary message
     summary_text = template.render(
-        model=max_eff_item.pumpModel,
-        efficiency=round(max_eff_item.bepEff * 100, 2)
+        model= max_eff_item.pumpModel,
+        efficiency= efficiency_str
     )
 
     # Return in desired JSON format

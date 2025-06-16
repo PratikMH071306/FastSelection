@@ -21,6 +21,7 @@ def extract_data(query: Query):
     if flow_match:
         flow = int(flow_match.group(1))
 
+
     # Head in meters - match only after 'head'
     head_match = re.search(r"head\s*(is\s*)?(\d+)\s*(meters?|m)", text)
     if head_match:
@@ -69,7 +70,7 @@ def extract_data(query: Query):
 
     # Default full structure
     prior_result = {
-       "CE_display": "1",
+        "CE_display": "1",
         "CH3_display": "1",
         "CQ_display": "1",
         "checkFlowMissTolerance": False,
@@ -138,7 +139,8 @@ def extract_data(query: Query):
         "suctionCondition": "Flooded",
         "textfield-1090-inputEl": "",
         "typeOfDriver": "DIRECT",
-        "userImpellerDia": ""
+        "userImpellerDia": "",
+        "isHollowShaft": "false",
     }
  
     # Merge the two
