@@ -1,6 +1,6 @@
 "# FastSelection" 
 
-
+# FOR COMMIT 
 Getting all commit files 
 [git add .]
 
@@ -9,3 +9,12 @@ Comment Adding
 
 push it 
 [git push -u origin main]
+
+
+
+
+
+
+
+# FOR GETTING ALL DEPENDENCIES
+pip freeze > requirements.txt
